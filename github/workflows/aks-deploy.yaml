@@ -1,0 +1,46 @@
+on:
+  push:
+    paths:
+    - 'aks/**'
+    - 'docker/**'
+name: Azure Kubernetes Service
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main      
+      - uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.ACR_URI }}
+          username: ${{ secrets.ACR_USER }}
+          password: ${{ secrets.ACR_PWD }}
+
+      - run: |
+          docker build . -t ${{ secrets.ACR_URI }}/akspoc:${{ github.sha }}
+          docker push ${{ secrets.ACR_URI }}/akspoc:${{ github.sha }}
+        working-directory: ./docker
+
+      - uses: azure/aks-set-context@v1
+        with:
+          creds: '${{ secrets.AZURE_CREDENTIALS }}'
+          cluster-name: aks-poc
+          resource-group: ${{ secrets.AZURE_RG }}
+
+      - uses: azure/k8s-create-secret@v1
+        with:
+          container-registry-url: ${{ secrets.ACR_URI }}
+          container-registry-username: ${{ secrets.ACR_USER }}
+          container-registry-password: ${{ secrets.ACR_PWD }}
+          secret-name: akspoc
+          namespace: default
+          arguments: --force true
+
+      - uses: azure/k8s-deploy@v1
+        with:
+          manifests: |
+            aks/deployment.yaml
+          images: |
+            ${{ secrets.ACR_URI }}/akspoc:${{ github.sha }}
+          imagepullsecrets: |
+            akspoc
+          namespace: default

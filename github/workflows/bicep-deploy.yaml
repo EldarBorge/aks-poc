@@ -1,0 +1,21 @@
+on: 
+  push:
+    paths:
+    - 'bicep/**'
+name: Azure Bicep
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@main
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: deploy
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+        resourceGroupName: ${{ secrets.AZURE_RG }}
+        template: bicep/main.bicep
+        parameters: 
+          sshpub=${{ secrets.SSH_PUBLIC }}
