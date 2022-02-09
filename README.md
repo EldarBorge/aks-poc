@@ -29,8 +29,10 @@ __This is <ins>NOT</ins> production-ready, and should only be used for testing p
 3. _**(Optional)**_ Change the CIDR variables and configurations in the vnet resource in `bicep/main.bicep` if you want a larger address space, or don't want overlap with your existing network
 4. Rename the `github` folder to `.github`
 5. Trigger the Bicep GitHub Actions by doing a change in the `bicep` folder
-6. Trigger the AKS GitHub Actions by doing a change in the `aks` or `docker` folder
-7. Browse to `http://<your-application-gateway-public-ip>/akspoc`
+    - Wait for workflow to complete  
+7. Trigger the AKS GitHub Actions by doing a change in the `aks` or `docker` folder
+    - Wait for workflow to complete
+8. Browse to `http://<your-application-gateway-public-ip>/akspoc`
 
 ## High Level Architecture
 Simplified architecture for the network flow and the GitHub Actions pipelines.
