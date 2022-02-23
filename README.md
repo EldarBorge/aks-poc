@@ -38,8 +38,35 @@ __This is <ins>NOT</ins> production-ready, and should only be used for testing p
 Simplified architecture for the network flow and the GitHub Actions pipelines.
 ### Network
 ![Network](img/akspoc-network.png)
+```mermaid
+graph LR
+a1[User]-->|http://`appgwpip`/akspoc|appgw
+    subgraph Virtual Network
+        subgraph AppGW Subnet
+            appgw(AppGW)          
+        end
+        subgraph AKS Subnet   
+            appgw-->pod1(pod-akspoc)
+            appgw-->pod2(pod-akspoc)
+            aks[AKS]            
+        end         
+    end
+```
 ### Pipelines
 ![Pipelines](img/akspoc-githubactions.png)
+```mermaid
+flowchart LR
+    x[User]-->x1[GitHub]
+    x1[GitHub]-->b1
+    x1[GitHub]-->a1
+    subgraph /docker/** OR /aks/**    
+    b1[Github Actions]-->|Deploy|b2[Azure Kubernetes Service]
+    b1[Github Actions]-->|Push|b3[Azure Container Registry]
+    end
+    subgraph /bicep/**
+    a1[Github Actions]-->|Deploy|a2[Azure Resource Manager]
+    end
+```
 ## Structure
 - `.github/workflows` contains the GitHub Actions deployment files
     - __aks-deploy.yaml__ triggers on push to the _docker_ or _aks_ folder and builds image, pushes to ACR, pulls and deploys to AKS
