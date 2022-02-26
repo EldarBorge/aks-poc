@@ -8,7 +8,8 @@ param podcidr string
 param dockercidr string
 param dnsservice string
 param subnetid string
-var location = resourceGroup().location
+param location string
+param appgwname string
 
 resource aks 'Microsoft.ContainerService/managedClusters@2021-10-01' = {
   name: name
@@ -59,10 +60,24 @@ resource aks 'Microsoft.ContainerService/managedClusters@2021-10-01' = {
   }
 }
 
+resource appgw 'Microsoft.Network/applicationGateways@2021-05-01' existing = {
+  name: appgwname
+}
+
 resource contrib 'Microsoft.Authorization/roleAssignments@2020-08-01-preview' = {
-  name: guid('aks-roleassignment-agic')
+  name: guid('aks-contrib-roleassignment-agic')
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
+    principalId: aks.properties.addonProfiles.ingressApplicationGateway.identity.objectId
+    principalType: 'ServicePrincipal'
+  }
+  scope: appgw
+}
+
+resource read 'Microsoft.Authorization/roleAssignments@2020-08-01-preview' = {
+  name: guid('aks-read-roleassignment-agic')
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')
     principalId: aks.properties.addonProfiles.ingressApplicationGateway.identity.objectId
     principalType: 'ServicePrincipal'
   }

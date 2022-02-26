@@ -1,11 +1,11 @@
 param sshpub string
-var location = resourceGroup().location
-var appgwname = 'appgw-akspoc'
+param location string = resourceGroup().location
+param appgwname string = 'appgw-akspoc'
 var appgwid = resourceId('Microsoft.Network/applicationGateways', appgwname)
 
-var k8scidr = '10.0.0.192/27'
-var dockercidr = '10.0.0.224/27'
-var dnsservice = '10.0.0.202'
+param k8scidr string = '10.0.0.192/27'
+param dockercidr string = '10.0.0.224/27'
+param dnsservice string = '10.0.0.202'
 
 resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
   name: 'vnet-akspoc'
@@ -163,10 +163,12 @@ module aks 'aks.bicep' = {
     adminusername: 'akspocAdministrator'
     sshpub: sshpub
     appgwid: appgw.id
+    appgwname: appgwname
     servicecidr: k8scidr
     podcidr: defaultsubnet.properties.addressPrefix
     dockercidr: dockercidr
     dnsservice: dnsservice
     subnetid: defaultsubnet.id
+    location: location
   }
 }
