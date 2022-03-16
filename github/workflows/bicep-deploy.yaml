@@ -18,4 +18,4 @@ jobs:
         resourceGroupName: ${{ secrets.AZURE_RG }}
         template: bicep/main.bicep
         parameters: 
-          sshpub=${{ secrets.SSH_PUBLIC }}
+          sshpub="${{ secrets.SSH_PUBLIC }}"
